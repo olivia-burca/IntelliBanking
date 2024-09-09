@@ -1,0 +1,81 @@
+/* You can add global styles to this file, and also import other style files */
+/*@import "https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css";
+@import 'https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css';
+@import 'https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css';
+@import 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css';
+@import 'https://stackpath.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css';
+@import 'https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css'; */
+@import '~bootstrap/dist/css/bootstrap.min.css';
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+
+body{
+  margin-top:20px;
+  background: #f5f5f5;
+}
+.card {
+  border: none;
+  -webkit-box-shadow: 0 1px 2px 0 rgba(0,0,0,.05);
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,.05);
+  margin-bottom: 30px;
+}
+.w-60 {
+  width: 60px;
+}
+h1, h2, h3, h4, h5, h6 {
+  margin: 0 0 10px;
+  font-weight: 600;
+}
+.social-links li a {
+  -webkit-border-radius: 50%;
+  background-color: rgba(89,206,181,.85);
+  border-radius: 50%;
+  color: #fff;
+  display: inline-block;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  width: 30px;
+  font-size: 12px;
+}
+a {
+  color: #707070;
+}
+/*
+.mat-option {
+  position:relative;
+  left:1000px;
+  margin-bottom: -20px;
+  margin-top: 10px;
+}
+*/
+.redRow {background-color: indianred}
+.greenRow {background-color: lightgreen}
+
+
+.mat-row {
+  height: auto !important;
+}
+
+.mat-cell {
+  padding: 12px 12px 12px 0 !important;
+}
+
+.color-icon {
+  color: #343a40;
+}
+
+.color-success {
+  color: #50b84c;
+}
+.color-white {
+  color: #ffffff;
+}
+
+.color-button {
+  background-color: #343a40;
+}
+
+.button-info {
+  background-color: #343a40;
+  
+}

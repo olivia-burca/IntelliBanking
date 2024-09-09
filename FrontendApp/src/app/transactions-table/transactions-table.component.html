@@ -1,0 +1,39 @@
+<span *ngIf="transactions.length === 0" class="text-muted"><small><br> This block has no transactions</small></span>
+
+<table class="table table-hover table-striped" *ngIf="transactions.length > 0">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Sender Public Key</th>
+      <th scope="col">Recipient Public Key</th>
+      <th scope="col">Amount</th>
+      <th scope="col">Timestamp</th>
+      <th scope="col">Valid?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let tx of transactions; index as index">
+      <td>{{index}}</td>
+      <td class="text-truncate" style="max-width: 100px;">
+        <a title ={{tx.sender}} >{{tx.sender}}</a>
+    
+      </td>
+      <td class="text-truncate" style="max-width: 100px;">
+          <a title ={{tx.recipient}}>{{tx.recipient}}</a>
+
+         
+      </td>
+      <td>
+        {{tx.amount}}
+      </td>
+      <td>
+        {{tx.timestamp | date:'dd/MM/yyyy HH:mm:ss'}}<br>
+        
+      </td>
+      <td style="max-width: 40px;">
+        <span>✓</span>
+       
+      </td>
+    </tr>
+  </tbody>
+</table>

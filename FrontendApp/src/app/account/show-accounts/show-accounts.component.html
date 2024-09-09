@@ -1,0 +1,988 @@
+
+
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
+        crossorigin="anonymous"></script>
+
+
+<button style="position: relative; left:210px;" mat-raised-button class="color-icon" (click)="onOpenModal(null, 'add')">Add Account
+  <mat-icon class="color-icon" matTooltip="Add a new account" matTooltipPosition="above">add_circle</mat-icon>
+</button>
+<button style="position: relative; left:210px;" mat-raised-button class="color-icon" (click)="approveAccounts()">Approve Accounts
+  <mat-icon class="color-icon" matTooltip="Approve accounts" matTooltipPosition="above">check_circle</mat-icon>
+</button>
+<button style="position: relative; left:210px;" mat-raised-button class="color-icon" (click)="rejectedRemovedAccounts()">See Rejected/Removed Accounts
+  <mat-icon class="color-icon" matTooltip="See Rejected/Removed accounts" matTooltipPosition="above">remove_circle</mat-icon>
+</button>
+
+  <div class="container bootstrap snippets bootdey" id="main-container" style="position: relative; left: 100px; width: 85%;" >
+
+    <mat-form-field appearance="standard"  >
+      <input matInput (keyup)="applyFilter($event)" placeholder="Search" #input>
+    </mat-form-field>
+    <div class="mat-elevation-z8">
+
+      <table style="border-spacing: 10px; " mat-table  [dataSource]="dataSource" matSort #sort="matSort" class="table user-list" >  
+
+        <ng-container matColumnDef="username">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Created By </th>
+          <td   mat-cell *matCellDef="let row"> &nbsp;&nbsp;{{row.owner.username}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="fullname">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Full Name </th>
+          <td mat-cell *matCellDef="let row"> {{row.fullname}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="address">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Address </th>
+          <td style=" max-width: 100px;" class="text-truncate" mat-cell *matCellDef="let row" title={{row.address}}> {{row.address}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="currency">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Currency </th>
+          <td mat-cell *matCellDef="let row"> {{row.currency}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="accountStatus">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Account Status </th>
+          <td mat-cell *matCellDef="let row"> {{row.accountStatus}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
+          <td mat-cell *matCellDef="let row"> {{row.status}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="nextstatus">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Next Status </th>
+          <td mat-cell *matCellDef="let row"> {{row.nextstatus}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="buttons1" >
+          <th  mat-header-cell *matHeaderCellDef >  </th>
+          <td style="width: 40%;" mat-cell *matCellDef="let row">
+          
+            <button mat-icon-button color="primary" aria-label="Info Account" (click)="accountDetails(row)">
+              <mat-icon class="color-icon" matTooltip="More Info" matTooltipPosition="above">info</mat-icon>
+            </button> 
+
+            <button mat-icon-button color="primary" aria-label="Edit Account" (click)="onOpenModal(row, 'edit')">
+              <mat-icon class="color-icon" matTooltip="Edit Account" matTooltipPosition="above">edit</mat-icon>
+            </button> 
+            
+            <button mat-icon-button color="warn" aria-label="Delete Account" (click)="onOpenModal(row, 'delete')">
+              <mat-icon matTooltip="Delete Account" matTooltipPosition="above">delete</mat-icon>
+            </button> 
+
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="buttons2" >
+          <th mat-header-cell *matHeaderCellDef >  </th>
+          <td  mat-cell *matCellDef="let row">
+
+              <button style="width: 190px;" mat-raised-button class="color-icon" (click)="currentBalance(row)">Current Balance
+                <mat-icon class="color-icon" matTooltip="See current balance" matTooltipPosition="above">account_balance</mat-icon>
+              </button>
+              <button  mat-raised-button class="color-icon" (click)="seePaymentsStatistics(row)">Transaction Statistics
+                <mat-icon class="color-icon" matTooltip="See transaction statistics" matTooltipPosition="above">show_chart</mat-icon>
+              </button>
+
+
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="buttons3" >
+          <th mat-header-cell *matHeaderCellDef >  </th>
+          <td  mat-cell *matCellDef="let row">
+
+              <button style="width: 210px;" mat-raised-button class="color-icon" (click)="onOpenModal(row, 'transaction')">Make a Transaction
+                <mat-icon class="color-icon" matTooltip="Make a transaction" matTooltipPosition="above">credit_card</mat-icon>
+              </button>
+              <button  mat-raised-button class="color-icon" (click)="seePayments(row)">Completed Transactions
+                <mat-icon class="color-icon" matTooltip="See completed transactions" matTooltipPosition="above">attach_money</mat-icon>
+              </button>
+
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row  *matRowDef="let row; columns: displayedColumns;" ></tr>
+
+        <!-- Row shown when there is no matching data. -->
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell" colspan="4"> </td>
+        </tr>
+
+
+      </table>
+
+      <mat-paginator #paginator [pageSizeOptions]="[5, 10, 25, 100]" showFirstLastButtons ></mat-paginator>
+    </div>
+  </div>
+
+
+<div class="modal fade" id="addAccountModal" tabindex="-1" role="dialog" aria-labelledby="addAccountModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addAccountModalLabel">Add Account</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form #addForm="ngForm" (ngSubmit)="onAddAccount(addForm)">
+          <div class="form-group">
+            <label for="fullname">Full Name</label>
+            <input type="text" ngModel name="fullname" class="form-control" id="fullname" placeholder="fullname" required>
+          </div>
+          <div class="form-group">
+            <label for="address">Address</label>
+            <input type="text" ngModel name="address" class="form-control" id="address" placeholder="address" required>
+          </div>
+         
+          <div class="form-group">
+            <label for="currency">Currency</label>
+            <input type="text" ngModel name="currency" class="form-control" id="currency" placeholder="currency" required>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" id="add-account-form" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button [disabled]="addForm.invalid" type="submit" class="btn btn-primary"  >Save changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="updateAccountModal" tabindex="-1" role="dialog" aria-labelledby="accountEditModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="updateAccountModalLabel">Edit Account</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form #editForm="ngForm">
+
+          <input type="hidden" ngModel="{{editAccount?.id}}" name="id" class="form-control" id="id" placeholder="Email">
+          <input type="hidden" ngModel="{{editAccount?.publicKey}}" name="publicKey" class="form-control" id="publicKey" placeholder="publicKey">
+          <input type="hidden" ngModel="{{editAccount?.privateKey}}" name="privateKey" class="form-control" id="privateKey" placeholder="privateKey">
+          <input type="hidden" ngModel="{{editAccount?.currency}}" name="currency" class="form-control" id="currency" placeholder="currency">
+          <div class="form-group">
+            <label for="fullname">Full Name</label>
+            <input type="fullname" ngModel="{{editAccount?.fullname}}" name="fullname" class="form-control" id="fullname" placeholder="fullname">
+          </div>
+          <div class="form-group">
+            <label for="address">Address</label>
+            <input type="address" ngModel="{{editAccount?.address}}" name="address" class="form-control" id="address" placeholder="address">
+          </div>
+          <div class="form-group">
+            <label for="accountStatus">Account status:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+            <mat-form-field>
+            <mat-select ngModel="{{editAccount?.accountStatus}}" name="accountStatus" id="accountStatus">
+              <mat-option value="OPEN">OPEN</mat-option>
+              <mat-option value="BLOCKED">BLOCKED</mat-option>
+              <mat-option value="BLOCKED DEBIT">BLOCKED DEBIT</mat-option>
+              <mat-option value="BLOCKED CREDIT">BLOCKED CREDIT</mat-option>
+            </mat-select>
+          </mat-form-field>
+            <br><br>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" id="" data-dismiss="modal" class="btn btn-secondary">Close</button>
+            <button (click)="onUpdateAccount(editForm.value)" data-dismiss="modal" class="btn btn-primary" >Save changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" role="dialog" aria-labelledby="deleteModelLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModelLabel">Delete Account</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete this Account?</p>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+          <button (click)="onDeleteAccount(deleteAccount?.id)" class="btn btn-secondary" data-dismiss="modal">Yes</button>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="accounts?.length == 0" class="col-lg-12 col-md-12 col-xl-12" style="position: relative; right: -230px;">
+  <div class="alert alert-info" role="alert">
+    <h4 class="alert-heading">NO ACCOUNTS!</h4>
+    <p>No Accounts were found.</p>
+  </div>
+</div>
+
+
+
+<div class="modal fade" id="detailAccountModal" tabindex="-1" role="dialog" aria-labelledby="detailModelLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="detailModelLabel">Account Details</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container bootstrap snippets bootdey" id="details-container">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="main-box no-header clearfix">
+                <div class="main-box-body clearfix">
+                  <div class="table-responsive">
+                    <table class="table user-list">
+                      <thead>
+                      <tr>
+                        <th><span>Public Key</span></th>
+                        <th><span>Created By</span></th>
+                        <th><span>Full Name</span></th>
+                        <th><span>Address</span></th>
+                        <th><span>Currency</span></th>
+                        <th class="text-center"><span>Account Status</span></th>
+                        <th class="text-center"><span>Status</span></th>
+                        <th class="text-center"><span>Next Status</span></th>
+
+                      </tr>
+                      </thead>
+                      <tbody class="col-md-6 col-xl-3">
+
+                      <tr>
+                        <td>
+                          <span  class="label label-default">{{detailAccount?.publicKey}}</span>
+                        </td>
+                        <td>
+                          <span  class="label label-default">{{detailAccount?.owner.username}}</span>
+                        </td>
+                        <td class="text-center">
+                          <span class="label label-default">{{detailAccount?.fullname}}</span>
+                        </td>
+                        <td class="text-center">
+                          <span class="label label-default">{{detailAccount?.address}}</span>
+                        </td>
+                        <td>
+                          <span  class="label label-default">{{detailAccount?.currency}}</span>
+                        </td>
+                        <td>
+                          <span  class="label label-default">{{detailAccount?.accountStatus}}</span>
+                        </td>
+                        <td class="text-center">
+                          <span class="label label-default">{{detailAccount?.status}}</span>
+                        </td>
+                        <td class="text-center">
+                          <span class="label label-default">{{detailAccount?.nextstatus}}</span>
+                        </td>
+
+                      </tr>
+
+
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <h5>Audit</h5>
+
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="main-box no-header clearfix">
+                <div class="main-box-body clearfix">
+                  <div class="table-responsive">
+                    <mat-form-field appearance="standard">
+                      <input matInput (keyup)="applyFilter2($event)" placeholder="Search" #input>
+                    </mat-form-field>
+                    <div class="mat-elevation-z8">
+
+                      <table mat-table [dataSource]="dataSource2" matSort  #sort2="matSort" class="table user-list" >  
+
+
+                        <ng-container matColumnDef="username">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header> User </th>
+                          <td mat-cell *matCellDef="let row" class="text-center">
+                            {{row.username}}
+                          </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="objectType">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header> Object Type </th>
+                          <td mat-cell *matCellDef="let row"> {{row.objectType}} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="operation">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header> Operation </th>
+                          <td mat-cell *matCellDef="let row"> {{row.operation}} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="date">
+                          <th mat-header-cell *matHeaderCellDef > Date </th>
+                          <td mat-cell *matCellDef="let row"> {{row.timestamp | date:'dd/MM/yyyy'}} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="time">
+                          <th mat-header-cell *matHeaderCellDef > Time </th>
+                          <td mat-cell *matCellDef="let row"> {{row.timestamp | date:'shortTime'}} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="buttons" >
+                          <th mat-header-cell *matHeaderCellDef >  </th>
+                          <td style="width: 20%;" mat-cell *matCellDef="let row">
+                          
+                              <button  mat-raised-button class="color-icon" (click)="accountHistory(row.timestamp)">Account History
+                                <mat-icon class="color-icon" matTooltip="See account history" matTooltipPosition="above">history</mat-icon>
+                              </button>
+
+                          </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns2"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns2;"></tr>
+
+                        <!-- Row shown when there is no matching data. -->
+                        <tr class="mat-row" *matNoDataRow>
+                          <td class="mat-cell" colspan="4"> </td>
+                        </tr>
+
+
+                      </table>
+                      <mat-paginator #paginator2 [pageSizeOptions]="[5]" showFirstLastButtons ></mat-paginator>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="accountHistoryModal" tabindex="-1" role="dialog" aria-labelledby="accountHistoryModelLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="accountHistoryModelLabel">Account Details</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container bootstrap snippets bootdey" id="account-history-container">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="main-box no-header clearfix">
+                <div class="main-box-body clearfix">
+                  <div class="table-responsive">
+                    <table class="table user-list">
+                      <thead>
+                      <tr>
+                        <th><span>Public Key</span></th>
+                        <th><span>Full Name</span></th>
+                        <th><span>Address</span></th>
+                        <th><span>Currency</span></th>
+                        <th><span>Account Status</span></th>
+                        <th><span>Status</span></th>
+                        <th><span>Next Status</span></th>
+                        <th><span>Date</span></th>
+                        <th><span>Time</span></th>
+                      </tr>
+                      </thead>
+                      <tbody class="col-md-6 col-xl-3">
+
+                      <tr>
+                    
+                        <td class="text-center">
+                          <span class="label label-default">{{accHistory?.fullname}}</span>
+                        </td>
+                        <td class="text-center">
+                          <span class="label label-default">{{accHistory?.address}}</span>
+                        </td>
+                        <td>
+                          <span  class="label label-default">{{accHistory?.currency}}</span>
+                        </td>
+                        <td>
+                          <span  class="label label-default">{{accHistory?.accountstatus}}</span>
+                        </td>
+                        <td class="text-center">
+                          <span class="label label-default">{{accHistory?.status}}</span>
+                        </td>
+                        <td class="text-center">
+                          <span class="label label-default">{{accHistory?.nextstatus}}</span>
+                        </td>
+                        <td class="text-center">
+                          <span class="label label-default">{{accHistory?.timestamp | date:'dd/MM/yyyy'}}</span>
+                        </td>
+                        <td class="text-center">
+                          <span class="label label-default">{{accHistory?.timestamp | date:'shortTime'}}</span>
+                        </td>
+
+                      </tr>
+
+
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="lastBalanceModal" tabindex="-1" role="dialog" aria-labelledby="lastBalanceModelLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="lastBalanceModelLabel">Current Balance</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container bootstrap snippets bootdey" id="last-balance-container">
+        
+                  <div class="table-responsive">
+                    <table class="table user-list">
+                      <thead>
+                      <tr>
+                        <th><span>Total Available</span></th>
+                        <th><span>Pending Credit</span></th>
+                        <th><span>Pending Debit</span></th>
+                      </tr>
+                      </thead>
+                      <tbody class="col-md-6 col-xl-3">
+
+                      <tr>
+                        <td>
+                          <span  class="label label-default">{{lastBalance?.availableDebit - lastBalance?.availableCredit | number:'1.2-8'}}</span>
+                        </td>
+
+                        <td class="text-center">
+                          <span class="label label-default">{{lastBalance?.pendingCredit | number:'1.2-8'}}</span>
+                        </td>
+                        <td class="text-center">
+                          <span class="label label-default">{{lastBalance?.pendingDebit | number:'1.2-8'}}</span>
+                        </td>
+
+
+                      </tr>
+
+
+                      </tbody>
+                    </table>
+                  </div>
+                    <button  mat-raised-button class="color-icon" (click)="balanceHistory(currentAccount)">Balance History
+                      <mat-icon class="color-icon" matTooltip="See balance history" matTooltipPosition="above">history</mat-icon>
+                    </button>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+     
+<div class="modal fade" id="balanceHistoryModal" tabindex="-1" role="dialog" aria-labelledby="balanceHistoryModelLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="balanceHistoryModelLabel">Balance History</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container bootstrap snippets bootdey" id="balance-history-container">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="main-box no-header clearfix">
+                <div class="main-box-body clearfix">
+                  <div class="table-responsive">
+                    <div>
+
+                    </div>
+                    <form class="date-block" [formGroup]="filterForm">
+                      <mat-form-field>
+                        <input matInput
+                               [matDatepicker]="fromDate"
+                               placeholder="From Date"
+                               formControlName="fromDate">
+                        <mat-datepicker-toggle matSuffix [for]="fromDate"></mat-datepicker-toggle>
+                        <mat-datepicker touchUi #fromDate></mat-datepicker>
+                      </mat-form-field>
+                      <mat-form-field>
+                        <input matInput
+                               [matDatepicker]="toDate"
+                               placeholder="To Date"
+                               formControlName="toDate">
+                        <mat-datepicker-toggle matSuffix [for]="toDate"></mat-datepicker-toggle>
+                        <mat-datepicker touchUi #toDate></mat-datepicker>
+                      </mat-form-field>
+                      <button mat-button color="primary" class="primary" (click)="applyFilterDate()">Submit</button>
+                    </form>
+
+                    <div class="mat-elevation-z8">
+
+                      <table mat-table [dataSource]="dataSource3" matSort  #sort3="matSort" class="table user-list" > 
+
+
+                        <ng-container matColumnDef="total">
+                          <th mat-header-cell *matHeaderCellDef > Total Available </th>
+                          <td mat-cell *matCellDef="let row" class="text-center">
+                            {{row.availableDebit - row.availableCredit | number:'1.2-8'}}
+                          </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="pendingCredit">
+                          <th mat-header-cell *matHeaderCellDef > Pending Credit </th>
+                          <td mat-cell *matCellDef="let row"> {{row.pendingCredit | number:'1.2-8'}} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="pendingDebit">
+                          <th mat-header-cell *matHeaderCellDef > Pending Debit </th>
+                          <td mat-cell *matCellDef="let row"> {{row.pendingDebit | number:'1.2-8'}} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="date">
+                          <th mat-header-cell *matHeaderCellDef > Date </th>
+                          <td mat-cell *matCellDef="let row"> {{row.timestamp | date: 'dd/MM/yyyy'}} </td>
+                        </ng-container>
+                        <ng-container matColumnDef="time">
+                          <th mat-header-cell *matHeaderCellDef > Time </th>
+                          <td mat-cell *matCellDef="let row"> {{row.timestamp | date: 'shortTime'}} </td>
+                        </ng-container>
+                        <ng-container matColumnDef="buttons" >
+                          <th mat-header-cell *matHeaderCellDef >  </th>
+                          <td style="width: 20%;" mat-cell *matCellDef="let row">
+                   
+                              <button  mat-raised-button class="color-icon" (click)="seeBalanceAudit(row.timestamp)">Balance Audit
+                                <mat-icon class="color-icon" matTooltip="See balance audit" matTooltipPosition="above">library_books</mat-icon>
+                              </button>
+
+                          </td>
+                        </ng-container>
+
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns3"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns3;"></tr>
+
+                        <!-- Row shown when there is no matching data. -->
+                        <tr class="mat-row" *matNoDataRow>
+                          <td class="mat-cell" colspan="4"> </td>
+                        </tr>
+
+
+                      </table>
+                      <mat-paginator #paginator3 [pageSizeOptions]="[5]" showFirstLastButtons ></mat-paginator>
+                    </div>
+
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="balanceAuditModal" tabindex="-1" role="dialog" aria-labelledby="balanceAuditModelLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="balanceAuditModelLabel">Balance Audit</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container bootstrap snippets bootdey" id="balance-audit-container">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="main-box no-header clearfix">
+                <div class="main-box-body clearfix">
+                  <div class="table-responsive">
+                    <table class="table user-list">
+                      <thead>
+                      <tr>
+                        <th><span>User</span></th>
+                        <th><span>Object Type</span></th>
+                        <th><span>Operation</span></th>
+                        <th><span>Date</span></th>
+                        <th><span>Time</span></th>
+                      </tr>
+                      </thead>
+                      <tbody class="col-md-6 col-xl-3">
+
+                      <tr>
+                        <td class="text-center">
+                          <span  class="label label-default">{{balanceAudit?.username}}</span>
+                        </td>
+
+                        <td class="text-center">
+                          <span class="label label-default">{{balanceAudit?.objectType}}</span>
+                        </td>
+                        <td class="text-center">
+                          <span class="label label-default">{{balanceAudit?.operation}}</span>
+                        </td>
+                        <td>
+                          <span  class="label label-default">{{balanceAudit?.timestamp | date:'dd/MM/yyyy'}}</span>
+                        </td>
+                        <td>
+                          <span  class="label label-default">{{balanceAudit?.timestamp | date:'shortTime'}}</span>
+                        </td>
+
+                      </tr>
+
+
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="transactionAccountModal" tabindex="-1" role="dialog" aria-labelledby="accountTransactionModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="transactionAccountModalLabel">Make an Transaction</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form #creditAccountForm="ngForm">
+          <div class="form-group">
+            <label for="publicKeyCredit">Public Key of Sender Account</label>
+            <input type="text" ngModel="{{transactionAccountCredit?.publicKey}}" name="publicKeyCredit" class="form-control" disabled id="publicKeyCredit" placeholder="publicKeyCredit" required>
+          </div>
+        </form>
+        <form #debitAccountForm="ngForm">
+          <div class="form-group">
+            <label for="publicKeyDebit">Public Key of Recipient Account</label>
+            <input type="text" id="publicKeyDebit" ngModel name="publicKeyDebit" class="form-control" placeholder="publicKeyDebit" required >
+          </div>
+        </form>
+        <form  #transactionForm="ngForm">
+          <div class="form-group">
+            <label for="amount">Amount</label>
+            <input type="number" ngModel="amount | number : 8" name="amount" class="form-control" id="amount" placeholder="amount" required>
+          </div>
+        </form>
+        <form  #checkForm2="ngForm">
+          <div class="form-group">
+            <label for="amount2">Re-enter Amount</label>
+            <input type="number" ngModel="amount2 | number : 8" name="amount2" class="form-control" id="amount2" placeholder="amount" required>
+          </div>
+        </form>
+
+        <div class="modal-footer">
+          <button type="button" id="" data-dismiss="modal" class="btn btn-secondary">Close</button>
+          <button (click)="onTransaction(transactionForm, checkForm2, debitAccountForm)" data-dismiss="modal" class="btn btn-primary" >Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+<div class="modal fade" id="paymentModal" tabindex="-1" role="dialog" aria-labelledby="paymentModelLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="paymentModelLabel">Transactions</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container bootstrap snippets bootdey" id="payment-container">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="main-box no-header clearfix">
+                <div class="main-box-body clearfix">
+                  <div class="table-responsive">
+
+
+                    <form class="date-block" [formGroup]="filterForm2">
+                      <mat-form-field>
+                        <input matInput
+                               [matDatepicker]="fromDate2"
+                               placeholder="From Date"
+                               formControlName="fromDate2">
+                        <mat-datepicker-toggle matSuffix [for]="fromDate2"></mat-datepicker-toggle>
+                        <mat-datepicker touchUi #fromDate2></mat-datepicker>
+                      </mat-form-field>
+                      <mat-form-field>
+                        <input matInput
+                               [matDatepicker]="toDate2"
+                               placeholder="To Date"
+                               formControlName="toDate2">
+                        <mat-datepicker-toggle matSuffix [for]="toDate2"></mat-datepicker-toggle>
+                        <mat-datepicker touchUi #toDate2></mat-datepicker>
+                      </mat-form-field>
+                      <button mat-button color="primary" class="primary" (click)="applyFilterDate2()">Submit</button>
+                    </form>
+                    <div class="mat-elevation-z8">
+
+                      <table mat-table [dataSource]="dataSource4" matSort  #sort4="matSort" class="table user-list" > 
+
+                        <ng-container matColumnDef="operation">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header> Operation </th>
+                          <td mat-cell *matCellDef="let row"> {{row.operation}} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="amount">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header > Amount </th>
+                          <td mat-cell [style.color]="isPositive(row) ? 'green' : 'red'"  *matCellDef="let row" > {{row.amount | number:'1.2-8'}} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="creditAcc">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header> Sender </th>
+                          <td mat-cell *matCellDef="let row; let i = index;" > {{creditAccountsFullName[i + 5 * currentPage]}} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="debitAcc">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header> Recipient </th>
+                          <td mat-cell *matCellDef="let row; let i = index;"> {{debitAccountsFullName[i + 5 * currentPage]}} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="status">
+                          <th mat-header-cell *matHeaderCellDef > Status </th>
+                          <td mat-cell *matCellDef="let row"> {{row.status}} </td>
+                        </ng-container>
+
+
+                        <ng-container matColumnDef="date">
+                          <th mat-header-cell *matHeaderCellDef > Date </th>
+                          <td mat-cell *matCellDef="let row"> {{row.timestamp | date: 'dd/MM/yyyy'}} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="time">
+                          <th mat-header-cell *matHeaderCellDef > Time </th>
+                          <td mat-cell *matCellDef="let row"> {{row.timestamp | date: 'shortTime'}} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="buttons" >
+                          <th mat-header-cell *matHeaderCellDef >  </th>
+                          <td style="width: 20%;" mat-cell *matCellDef="let row">
+                            <button  mat-raised-button class="color-icon" (click)="seePaymentAudit(row.timestamp)">Transaction Audit
+                              <mat-icon class="color-icon" matTooltip="See transaction audit" matTooltipPosition="above">library_books</mat-icon>
+                            </button>
+                          </td>
+                        </ng-container>
+
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns4"></tr> 
+                        <tr mat-row  *matRowDef="let row; columns: displayedColumns4; let i = index;" ></tr>
+
+                        <!-- Row shown when there is no matching data. -->
+                        <tr class="mat-row" *matNoDataRow>
+                          <td class="mat-cell" colspan="4"> </td>
+                        </tr>
+
+
+                      </table>
+                      <mat-paginator #paginator4 [pageSizeOptions]="[5]"   (page)="handlePage($event)" showFirstLastButtons ></mat-paginator>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="paymentAuditModal" tabindex="-1" role="dialog" aria-labelledby="paymentAuditModelLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="paymentAuditModelLabel">Transaction Audit</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container bootstrap snippets bootdey" id="payment-audit-container">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="main-box no-header clearfix">
+                <div class="main-box-body clearfix">
+                  <div class="table-responsive">
+                    <table class="table user-list">
+                      <thead>
+                      <tr>
+                        <th><span>User</span></th>
+                        <th><span>Object Type</span></th>
+                        <th><span>Operation</span></th>
+                        <th><span>Date</span></th>
+                        <th><span>Time</span></th>
+                      </tr>
+                      </thead>
+                      <tbody class="col-md-6 col-xl-3">
+
+                      <tr>
+                        <td class="text-center">
+                          <span  class="label label-default">{{paymentAudit?.username}}</span>
+                        </td>
+
+                        <td class="text-center">
+                          <span class="label label-default">{{paymentAudit?.objectType}}</span>
+                        </td>
+                        <td class="text-center">
+                          <span class="label label-default">{{paymentAudit?.operation}}</span>
+                        </td>
+                        <td>
+                          <span  class="label label-default">{{paymentAudit?.timestamp | date:'dd/MM/yyyy'}}</span>
+                        </td>
+                        <td>
+                          <span  class="label label-default">{{paymentAudit?.timestamp | date:'shortTime'}}</span>
+                        </td>
+
+                      </tr>
+
+
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="paymentStatisticsModal" tabindex="-1" role="dialog" aria-labelledby="paymentStatisticsModelLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="paymentStatisticsModelLabel">Transactions Statistics</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container bootstrap snippets bootdey" id="payment-statistics-container">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="main-box no-header clearfix">
+                <div class="main-box-body clearfix">
+                  <div class="table-responsive">
+                    <h5>DEBIT</h5>
+                    <table class="table user-list">
+                      <thead>
+                      <tr>
+                        <th><span>Status</span></th>
+                        <th><span>Count</span></th>
+                        <th><span>Amount</span></th>
+                      </tr>
+                      </thead>
+                      <tbody class="col-md-6 col-xl-3" *ngFor="let x of debitStatistics;">
+                      <tr>
+                        <td >
+                          <span class="label label-default">{{x?.status}}</span>
+                        </td>
+                        <td >
+                          <span class="label label-default">{{x?.count}}</span>
+                        </td>
+                        <td >
+                          <span class="label label-default">{{x?.sum | number:'1.2-8'}}</span>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                    <h5>CREDIT</h5>
+                    <table class="table user-list">
+                      <thead>
+                      <tr>
+                        <th><span>Status</span></th>
+                        <th><span>Count</span></th>
+                        <th><span>Amount</span></th>
+                      </tr>
+                      </thead>
+                      <tbody class="col-md-6 col-xl-3" *ngFor="let x of creditStatistics;">
+                      <tr>
+                        <td >
+                          <span class="label label-default">{{x?.status}}</span>
+                        </td>
+                        <td >
+                          <span class="label label-default">{{x?.count}}</span>
+                        </td>
+                        <td >
+                          <span class="label label-default">{{x?.sum | number:'1.2-8'}}</span>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,19 @@
+
+
+<div class="container" style="overflow-x: scroll;white-space: nowrap; position: relative; right: -120px; width: 80%;" >
+	<app-block-view 
+		*ngFor="let block of blocks" 
+		[block]="block" 
+		[selectedBlock]="selectedBlock"
+		(click)="showTransactions(block)"
+	></app-block-view>
+</div>
+
+<div class="container" style="position: relative; right: -120px; width: 80%;">
+	
+	<span class="text-muted">Transactions inside block {{ getBlockNumber(selectedBlock) }}</span>
+	<app-transactions-table
+	[transactions]="currentTransactions"
+	></app-transactions-table>
+	
+</div>
